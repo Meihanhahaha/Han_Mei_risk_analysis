@@ -9,3 +9,8 @@ MonteCarlo method simulation to evaluate projece completion duration
 
 Evaluate project budget plan for the overall project is important, this will depend on how long it will take to finish the whole project.
 
+
+        Han_Mei_risk_analysis/ST 541 project.pdf
+      
+        Han_Mei_risk_analysis/Project Completion Management in Construction Management.pptx
+      
