@@ -1,0 +1,165 @@
+---
+title: "Risk Management"
+author: "Han Mei"
+date: "December 2, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Library may be needed
+
+```{r}
+library(tidyverse)
+```
+
+
+
+
+#Project A
+```{r}
+#Proposed_completion_duration 
+pcd<-ceiling(abs(rnorm(1,2,1))*100)
+```
+
+
+```{r}
+# Identification of Hazadours
+
+Workers_injury<-rbinom(1,1,0.1)
+safety_issue<-rbinom(1,1,0.01)
+technique_issues <- rbinom(1,1,0.4)
+weather <- rbinom(1,1,0.2)
+material_supply <-rbinom(1,1,0.1)
+project_modification<-rbinom(1,1,0.3)
+contractor_finacial_issue<-rbinom(1,1,0.005)
+
+time_delay<-c(2,30,15,20,32,15,50)
+
+# Put parameters into a vector
+par<-c(Workers_injury, safety_issue,technique_issues,weather,material_supply,project_modification,contractor_finacial_issue)
+
+#Function to get overall implenmentation duration
+project_duration <-function(pcd,par,time_delay){
+  overall_delay<- pcd+par%*%time_delay
+  overall_delay
+}
+
+project_duration(pcd=pcd,par=par,time_delay=time_delay)
+
+pessimistic <- pcd+sum(time_delay)
+
+optimistic <- pcd
+```
+# Monte Carlo
+```{r}
+pars<-rerun(1000,c(rbinom(1,1,0.1),rbinom(1,1,0.01),rbinom(1,1,0.4),rbinom(1,1,0.2),rbinom(1,1,0.1),rbinom(1,1,0.3),rbinom(1,1,0.05)))
+
+project_duration1<-function(par){
+  time_delay<-c(2,30,15,20,32,15,50)
+  overall_delay<- pcd+par%*%time_delay
+  overall_delay
+}
+
+duration<-map(pars, project_duration1)%>%flatten_dbl()
+
+average_duration<-mean(duration)
+
+
+# Expected comletion duration
+exp_value<-(optimistic+pessimistic+4*ceiling(average_duration))/6
+
+#Slack
+slack<-10
+
+#Extended date
+
+exp_date<-exp_value+slack
+exp_date
+# Variance
+var<- ((pessimistic-optimistic)/6)^2
+
+ggplot(mapping = aes(x = duration)) +
+  geom_histogram(aes(y = stat(density)), binwidth = 1)+geom_line(x=exp_value)
+
+#Probability to finish project before Expected date
+prob<-sum(duration<exp_value)/1000
+
+prob
+```
+
+# Project B
+
+```{r}
+#Proposed_completion_duration 
+pcdb<-ceiling(abs(rnorm(1,1,1))*100)
+```
+
+
+```{r}
+# Identification of Hazadours
+
+Workers_injuryb<-rbinom(1,1,0.1)
+safety_issueb<-rbinom(1,1,0.01)
+technique_issuesb <- rbinom(1,1,0.6)
+material_supplyb <-rbinom(1,1,0.1)
+project_modificationb<-rbinom(1,1,0.3)
+contractor_finacial_issueb<-rbinom(1,1,0.005)
+
+time_delayb<-c(2,30,2,10,15,50)
+
+# Put parameters into a vector
+parb<-c(Workers_injuryb, safety_issueb,technique_issuesb,material_supplyb,project_modificationb,contractor_finacial_issueb)
+
+#Function to get overall implenmentation duration
+projectb_durationb <-function(pcd,par,time_delay){
+  overall_delay<- pcd+par%*%time_delay
+  overall_delay
+}
+
+projectb_durationb(pcd=pcdb,par=parb,time_delay=time_delayb)
+
+pessimisticb <- pcd+sum(time_delay)
+
+optimisticb <- pcd
+```
+# Monte Carlo
+```{r}
+parsb<-rerun(1000,c(rbinom(1,1,0.1),rbinom(1,1,0.01),rbinom(1,1,0.6),rbinom(1,1,0.1),rbinom(1,1,0.3),rbinom(1,1,0.05)))
+
+project_duration1b<-function(par){
+  time_delayb<-c(2,30,2,10,15,50)
+  overall_delay<- pcd+par%*%time_delayb
+  overall_delay
+}
+
+durationb<-map(parsb, project_duration1b)%>%flatten_dbl()
+
+average_durationb<-mean(durationb)
+
+
+# Expected comletion duration
+exp_valueb<-(optimisticb+pessimisticb+4*ceiling(average_durationb))/6
+
+#Slack
+slackb<-10
+
+#Extended date
+
+exp_dateb<-exp_valueb+slackb
+exp_dateb
+# Variance
+varb<- ((pessimisticb-optimisticb)/6)^2
+
+ggplot(mapping = aes(x = durationb)) +
+  geom_histogram(aes(y = stat(density)), binwidth = 1)+geom_line(x=exp_valueb)
+
+#Probability to finish project before Expected date
+probb<-sum(durationb<exp_valueb)/1000
+
+probb
+```
+
+The overall duration for A and B should be summation of project duration A and project duration B. The probability to finish this whole project whithin "exp_value+exp_valueb" with probability "prob*probb".
