@@ -11,3 +11,5 @@ Evaluate project budget plan for the overall project is important, this will dep
       
         Han_Mei_risk_analysis/Project Completion Management in Construction Management.pptx
       
+        Han_Mei_risk_analysis/ST 541 project.Rmd
+      
